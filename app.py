@@ -113,10 +113,17 @@ def checkbox_label(selected: bool, path: Path) -> Text:
 # ----------------- Confirmation dialog -----------------
 
 class IncludeDialog(ModalScreen[bool | None]):
+    # Arrow keys move between buttons; Enter/Space selects; Esc cancels
+    BINDINGS = [
+        Binding("left,up", "focus_previous", "Move Left/Up"),
+        Binding("right,down", "focus_next", "Move Right/Down"),
+        Binding("enter,space", "press_focused", "Select"),
+        Binding("escape", "dismiss_none", "Cancel"),
+    ]
+
     def compose(self) -> ComposeResult:
-        # Center one child in both axes
-        with Center():
-            # Reuse the same frame layout/IDs as the main screen
+        # Use the same structure as the first screen so the border fills identically
+        with Vertical(id="outer"):
             with Vertical(id="frame"):
                 yield Static(
                     "Should unselected files/folders be visible in the file tree (above)?",
@@ -126,6 +133,28 @@ class IncludeDialog(ModalScreen[bool | None]):
                     yield Button("Yes", id="yes", classes="choice")
                     yield Button("No", id="no", classes="choice")
                     yield Button("Cancel", id="cancel", classes="choice")
+                # Footer-style key hints (identical look to first screen)
+                yield Footer()
+
+    # Put focus on "Yes" so arrows work immediately
+    def on_mount(self) -> None:
+        self.query_one("#yes", Button).focus()
+
+    # Built-in focus helpers we bind to the arrow keys
+    def action_focus_next(self) -> None:
+        self.focus_next()
+
+    def action_focus_previous(self) -> None:
+        self.focus_previous()
+
+    # Press the currently focused button (triggering on_button_pressed)
+    def action_press_focused(self) -> None:
+        focused = self.focused
+        if isinstance(focused, Button):
+            focused.press()
+
+    def action_dismiss_none(self) -> None:
+        self.dismiss(None)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "yes":
@@ -180,8 +209,7 @@ class FileTreeApp(App):
     def compose(self) -> ComposeResult:
         with Vertical(id="outer"):
             with Vertical(id="frame"):
-                yield Header(show_clock=False)
-                yield Label(f"Root: {ROOT}", id="rootlabel")
+                yield Header(show_clock=True)
                 self.file_tree = Tree(checkbox_label(True, ROOT), data=NodeData(ROOT, True))
                 self.node_index = {}  # NEW: path -> node index
                 # index the root immediately

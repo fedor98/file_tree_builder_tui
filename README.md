@@ -15,7 +15,7 @@ If you have Docker and Docker Compose installed:
 
 - This launches the file tree selector inside your current directory.
 
-### 🐳 Run Without Compose (little setup required)
+### 🐳 Run Without the Docker Compose file (little setup required)
 
 You can add a small Shell Function to your shell configuration file
 

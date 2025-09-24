@@ -1,6 +1,6 @@
 services:
   tui:
-    image: ghcr.io/fedor98/file_tree_builder_tui
+    build: .
     working_dir: /data
     volumes:
       - ./:/data
