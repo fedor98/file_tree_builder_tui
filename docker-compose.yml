@@ -1,0 +1,12 @@
+services:
+  tui:
+    image: filetree-tui
+    build: .
+    working_dir: /data
+    volumes:
+      - ./:/data
+    tty: true
+    stdin_open: true
+    environment:
+      OUTPUT: FILETREE.md
+      EXCLUDES: ".git,node_modules,__pycache__"
