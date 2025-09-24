@@ -1,12 +1,13 @@
 services:
   tui:
-    image: filetree-tui
-    build: .
+    image: ghcr.io/fedor98/file_tree_builder_tui
     working_dir: /data
     volumes:
       - ./:/data
     tty: true
     stdin_open: true
     environment:
+      TERM: ${TERM}
+      COLORTERM: ${COLORTERM}
       OUTPUT: FILETREE.md
       EXCLUDES: ".git,node_modules,__pycache__"
